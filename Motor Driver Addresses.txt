@@ -1,0 +1,19 @@
+Arms: Channel 1 
+front right arm motor: down up up 129
+rear right arm motor: up down up 130
+front left arm motor: down down up 131
+rear left arm motor: up up up 128
+
+screw motors: channel 2 
+front right screw: down up up 129
+rear right screw: up down up 130
+front left screw: down down up 131
+rear left screw: up up up 128
+
+excavation rotation
+channel 1 down up down 133
+linear actuator
+channel 2: down up down 133
+
+*hv barrel connector marked side is positive
+*audio connector signal on white line goes to s1

@@ -1,0 +1,28 @@
+NOTE: For Windows only
+
+Step 1: Make sure you can view hidden files
+  Go to File Explorer
+  Go to "View" Tab at the tab
+  Make sure "Hidden Items" checkbox on the right is checked
+
+Step 2: Setup shortcut for scripts
+  Navigate to the RoboMining4 Directory. You should see staticip.bat and dhcp.bat
+  For each .bat:
+    Right click on the file and click "Create Shortcut"
+    Name the shortcut and move it to any directory you wish
+
+Step 3: Configure Shortcut settings
+  For each shortcut:
+    Right click and click "Properties"
+    Under the "Shortcut" tab, click on the "Advanced" button
+    Enable "Run as Administrator"
+    Back under the "Shortcut" tab, click on the textfield next to shortcut key and push your desired keyboard shortcut
+    Click "apply" to save settings
+
+Step 4: Run the scripts
+  The scripts can be run three ways:
+    1) From the keyboard, Click the keyboard shortcut that you set in the previous step
+    2) From the command prompt, navigate to the directory where you saved the shortcut and run START *your shortcut name*
+    3) From file explorer, double click on the shortcut, or right click on the original .bat file and click "Run as Administrator"
+NOTE: Windows will give you a dialogue box whenever these scripts are run. You can turn it off in settings, if you want
+    
