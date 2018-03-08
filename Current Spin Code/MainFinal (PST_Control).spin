@@ -71,7 +71,7 @@ CON
   leftArmBackMotorSpeedOffset = 5   
   
 OBJ
-  pst         : "Pst_Driver"
+  pst         : "PST_Driver"
   HbridgeFDS  : "FullDuplexSerial"   'Motor control serial output
   xbeeFDS     : "FullDuplexSerial"      
 

@@ -1,0 +1,12 @@
+MARSProject.cpp
+MainFinal (PST_Control).cpp
+FullDuplexSerial.cpp
+motorPropCurrent.cpp
+PST_Driver.cpp
+>compiler=C++
+>memtype=cmm main ram compact
+>optimize=-Os
+>-m32bit-doubles
+>-fno-exceptions
+>-fno-rtti
+>BOARD::ACTIVITYBOARD
