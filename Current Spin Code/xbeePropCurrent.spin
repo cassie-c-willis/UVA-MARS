@@ -25,6 +25,7 @@ PUB Main | input, byteCount, byte3
     '  dira[ConnectionPin]~      'Make connection an input pin
     '  dira[11]~~                'Status LED (off)
     '  outa[11]~
+    'pst.start
       dira[P2RX] := 1
       dira[16..17]~~             'Set all debugging pins as outputs
       
@@ -52,10 +53,11 @@ PUB Main | input, byteCount, byte3
         'if byteCount == 14
           'byteCount := 0
           'pst.NewLine
-       'pst.dec(input)
-       'pst.NewLine
+        'pst.dec(input)
+        'pst.NewLine
         outa[debugPin0] := !outa[debugPin0]
         p2serial.Tx(input)
+      
 
 PUB feedback | receivedVal
 
