@@ -375,7 +375,8 @@ PUB processState | excInSpeed
           elseif PosExcavator < ExcMax and excInSpeed > 0          'Don't let the Arm hit other parts of robot    
               mainArm(excInSpeed)
           else
-              mainArm(0)
+              'mainArm(0)
+              mainArm(excInSpeed)
 
           PrevPos[IndExc] := PosExcavator           
           DesPosExcavator := PosExcavator  #> ExcMin <# ExcMax'Update desired pos to current pos, when exit this mode new pos will be held
@@ -579,11 +580,11 @@ PUB rightScrew(inspeed)
     'positive is clockwise as viewed from rear
     inspeed := inspeed #> -127 <# 127
     if inspeed > 0
-      frontRightWheelDir := 5
+      frontRightWheelDir := 4
       rearRightWheelDir  := 4
       rightWheelSpeed    := inspeed
     else
-      frontRightWheelDir := 4
+      frontRightWheelDir := 5
       rearRightWheelDir  := 5
       rightWheelSpeed    := -inspeed    
 
@@ -633,13 +634,8 @@ PUB motorDriverUpdater
       SendH(128, rearLeftWheelDir    , leftWheelSpeed)
 
       'Excavator Axis Motors
-      SendH(133, excavatorDir        , excavatorSpeed)
+      'SendH(133, excavatorDir        , excavatorSpeed)
       SendH(134, invertedExcavatorDir, excavatorSpeed)
-     { pst.str(String("excavatorSpeed: "))
-      pst.dec(excavatorSpeed)
-      pst.str(string("  isCon: "))
-      pst.dec(isConnected)
-      pst.NewLine     }
 
       'Linear Actuator Motor
       SendH(133, linActDir           , linActSpeed)
