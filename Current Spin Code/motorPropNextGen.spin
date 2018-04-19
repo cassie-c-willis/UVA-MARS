@@ -567,12 +567,12 @@ PUB leftScrew(inspeed)
     'positive is clockwise as viewed from rear
     inspeed := inspeed #> -127 <# 127
     if inspeed > 0
-      frontLeftWheelDir := 5
-      rearLeftWheelDir  := 4
+      frontLeftWheelDir := 4
+      rearLeftWheelDir  := 1
       leftWheelSpeed    := inspeed
     else
-      frontLeftWheelDir := 4
-      rearLeftWheelDir  := 5
+      frontLeftWheelDir := 5
+      rearLeftWheelDir  := 0
       leftWheelSpeed    := -inspeed
       
 PUB rightScrew(inspeed)
@@ -618,27 +618,27 @@ PUB mainArm(inspeed)
 PUB motorDriverUpdater
   repeat
       'Right Arm Motors
-      SendH(129, frontRightArmDir    , frontRightArmSpeed)
-      SendH(130, rearRightArmDir     , backRightArmSpeed)
+      SendH(129, frontRightArmDir    , frontRightArmSpeed)    'good
+      SendH(130, rearRightArmDir     , backRightArmSpeed)     'good
 
       'Right Screw Motors
-      SendH(129, frontRightWheelDir  , rightWheelSpeed)
-      SendH(130, rearRightWheelDir   , rightWheelSpeed)
+      SendH(129, frontRightWheelDir  , rightWheelSpeed)      'good
+      SendH(130, rearRightWheelDir   , rightWheelSpeed)      'good
 
       'Left Arm Motors
       SendH(131, frontLeftArmDir     , frontLeftArmSpeed)
-      SendH(128, rearLeftArmDir      , backLeftArmSpeed)
+      SendH(133, rearLeftArmDir      , backLeftArmSpeed)
 
       'Left Screw Motors
-      SendH(131, frontLeftWheelDir   , leftWheelSpeed)
-      SendH(128, rearLeftWheelDir    , leftWheelSpeed)
+      SendH(131, frontLeftWheelDir   , leftWheelSpeed)        'good  (direction command is suspicious across channels)
+      SendH(128, rearLeftWheelDir    , leftWheelSpeed)        'good
 
       'Excavator Axis Motors
       'SendH(133, excavatorDir        , excavatorSpeed)
-      SendH(134, invertedExcavatorDir, excavatorSpeed)
+      SendH(134, invertedExcavatorDir, excavatorSpeed)        'good
 
       'Linear Actuator Motor
-      SendH(133, linActDir           , linActSpeed)
+      SendH(133, linActDir           , linActSpeed)           'good
 
             
       waitcnt(clkfreq/100 + cnt)
