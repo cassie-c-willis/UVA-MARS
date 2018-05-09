@@ -53,8 +53,8 @@ CON
   adcRR  = 5       
 
   'Excavator Positions
-  ExcMin = 1247'1270       'MIN Pos on Cart
-  ExcMax = 1525'1505       'MAX Pos on Cart
+  ExcMin = 1273'1247'1270       'MIN Pos on Cart
+  ExcMax = 1515'1525'1505       'MAX Pos on Cart
   ExcDigPos = 1300       'Pos to be at to dig
 
   'ERROR MSG SENT INDICATORS
@@ -221,16 +221,17 @@ isConnected := 0
 
 
 
+
  ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
  'COMMENTING OUT THE BELOW CODE:
  ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
- 'coginit(4 , updateADC          , @ADCStack  ) 'Cog 4
- 'waitcnt(clkfreq*4+cnt)      
+ coginit(4 , updateADC          , @ADCStack  ) 'Cog 4
+ waitcnt(clkfreq*4+cnt)      
  
- 'repeat until PosExcavator <> 0
+ repeat until PosExcavator <> 0
  
- 'DesPosExcavator  := PosExcavator #> ExcMin <# ExcMax 'Start by maintaining current position  
+ DesPosExcavator  := PosExcavator #> ExcMin <# ExcMax 'Start by maintaining current position  
  
  coginit(5 , processState       , @RobotStack) 'Cog 5    
  'coginit(6 , PotControl         , @PotStack  ) 'Cog 6  
@@ -319,7 +320,8 @@ PUB processState | excInSpeed
   repeat
    ' pst.str(String("Processing state"))
     if isConnected == 1                    'Only do things if connection is active       
-                              
+       'pst.str(string("isConnected"))
+       'pst.newLine                       
         'move robot (main control cog)
       'if macroRunning == 0                 'Only do teleop if macro not running
         if getRightButton(0) == 0          'Get state of Button 0 on Right Joystick   -- The Trigger
@@ -362,33 +364,26 @@ PUB processState | excInSpeed
           'REENABLE EXCAVATOR ACTIVE CONTROL HERE
           ''''''''''''''''''''''''''''''''''''''''''
           'enableExc := 1                   'If not operating Exc, maintain current position
-           excavatorSpeed:=0
-
+           'excavatorSpeed:=0
+           holdExcPosition                  'single-threaded alternative to the above
 
           
           
         else                            
-          enableExc := 0                   'Don't use position control when we're not manually controlling excavator
           excInSpeed := -getRY*getRT/255
-          if PosExcavator > ExcMin and excInSpeed < 0          'Don't let the Arm hit other parts of robot    
-              mainArm(excInSpeed)
-          elseif PosExcavator < ExcMax and excInSpeed > 0          'Don't let the Arm hit other parts of robot    
-              mainArm(excInSpeed)
-          else
-              'mainArm(0)
-              mainArm(excInSpeed)
+          mainArmSafe(excInSpeed)          'move main arm while heeding software min and max positions
 
           PrevPos[IndExc] := PosExcavator           
           DesPosExcavator := PosExcavator  #> ExcMin <# ExcMax'Update desired pos to current pos, when exit this mode new pos will be held
           
-          'MAX 1275    MIN 1040
+          
           
           rightScrew(-getLY + getLX)
           leftScrew(getLY + getLX)   
           leftArm(0)
           rightArm(0)           
 
-      
+        
 
 
         
@@ -429,6 +424,7 @@ PUB processState | excInSpeed
          repeat until getRightButton(6) == 1
                                                
     else
+       EnableExc := 0
        frontRightArmSpeed     := 0
        backRightArmSpeed := 0
        rightWheelSpeed   := 0
@@ -441,10 +437,31 @@ PUB processState | excInSpeed
 
        ''''''''''''''''''''''''''''''''''''''''''''
        'REENABLE EXCAVATOR ACTIVE CONTROL HERE
+       'OR NOT?  WHY DO WE WANT ACTIVE CONTROL WHEN DISCONNECTED?
        ''''''''''''''''''''''''''''''''''''''''''''
        
        excavatorSpeed    := 0                        
        'enableExc         := 1                        
+
+
+PUB holdExcPosition  | Kp, error, deadzone
+  deadzone := 3
+  Kp := 4
+  error := (PosExcavator - DesPosExcavator)
+  if error > 75
+    ExcActiveModeEnabled := 0
+
+  if ExcActiveModeEnabled == 1
+     if(||(error) > deadzone)
+        mainArmSafe(-error*Kp)
+     else
+        mainArm(0)
+
+
+  else
+    mainArm(0)
+
+
 
 PUB checkForModeButtons
   if getLeftButton(4) == 1        'Enable Active mode on Excavator
@@ -598,6 +615,25 @@ PUB linAct(inspeed)
         linActDir   := 5
         linActSpeed := -inspeed
 
+
+PUB mainArmSafe(inspeed)
+    if inspeed > 0 AND posExcavator < ExcMax
+      mainArm(inspeed)
+      'pst.str(string("going up:"))
+    else
+      if inspeed < 0 AND posExcavator > ExcMin
+        mainArm(inspeed)
+        'pst.str(string("going down:"))
+      else
+        mainArm(0)
+        'pst.str(string("stopped:"))
+    'pst.dec(posExcavator)
+    'pst.str(string(":"))
+    'pst.dec(excMax)
+    'pst.newLine    
+
+
+
 PUB mainArm(inspeed)
     inspeed := inspeed #> -127 <# 127
     'positive is up (back)
@@ -642,6 +678,39 @@ PUB motorDriverUpdater
 
             
       waitcnt(clkfreq/100 + cnt)
+
+
+PUB updateADC | PrevExc, PrevFL, PrevFR, PrevRL, PrevRR, PrevsSet, counter
+
+  PrevsSet := 0
+  ADC(adcExc)                        'INIT ADC, get first byte in
+  repeat
+    PosExcavator := ADC(adcFL )
+    PosLegFL     := ADC(adcFR )
+    PosLegFR     := ADC(adcRL )
+    PosLegRL     := ADC(adcRR ) 
+    PosLegRR     := ADC(adcExc)
+
+        
+
+PUB ADC(NextChannel) : ADCbits | dataByte, i
+  {
+    Shift bits from last call out and read in the next called channel into buffer
+  }
+  dira[eoc..cs]:=%01101
+  ADCbits:=0
+  outa[clk]~
+  outa[cs]~
+  dataByte:=NextChannel<<8+%0000<<4
+  waitpeq(|<eoc,|<eoc,0)
+  repeat i from 11 to 0
+    ADCbits:=(ADCbits<<1)+ina[Sin]
+    outa[Sout]:=dataByte>>i
+    outa[clk]~
+    outa[clk]~~
+    outa[clk]~
+  outa[cs]~~
+      
 PUB SendH(address,command,speed) | checksum
   checksum:=(address+command+speed) & %01111111         
   HbridgeFDS.tx(address)                                   'H-bridge address # (128-133)
