@@ -1,0 +1,29 @@
+#include "simpletools.h"                      // Include simple tools
+
+serial *motor;
+
+
+
+int main()                                    // Main function
+{
+
+  motor = serial_open(-1,10,0,9600);
+ 
+  
+    int address = 128;
+    int command  = 0;
+    int speed = 0;
+
+    int checksum = (address+command+speed) & (0b01111111);
+
+
+
+    
+    serial_txChar(motor,address);
+    serial_txChar(motor,command);
+    serial_txChar(motor,speed);
+    serial_txChar(motor,checksum);
+   
+    
+    
+}
